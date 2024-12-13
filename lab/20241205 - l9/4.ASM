@@ -1,0 +1,50 @@
+Main:
+	MOV DL,C0
+	MOV BL,70
+	CALL 10
+
+
+ORG 10
+Wrap:
+	MOV CL,70
+Rep:
+	IN 00
+	MOV [CL],AL
+	CMP AL,0D
+	JZ C3
+	INC CL
+	CMP CL,B0
+	JZ Wrap
+	JMP Rep
+
+C3: 
+MOV CL,70
+CALL 30
+
+ORG 30
+	
+	MOV AL,[CL]
+	CMP AL,0D
+	JZ C5
+	SUB AL, 20
+	MOV [CL], AL
+	INC CL
+	CALL 30
+
+C5:
+MOV CL, 70
+CALL 50
+
+
+ORG 50
+	MOV AL,[CL]
+	MOV [DL],AL
+	INC CL
+	CMP AL,0D
+	JZ Endl
+	INC DL
+	CALL 50
+
+
+Endl:
+	END

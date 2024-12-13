@@ -1,0 +1,107 @@
+1.
+MOV AL, 3
+CALL 30
+MOV [C0], AL
+
+MOV AL, 7
+CALL 30
+MOV [C2], AL
+
+ORG 30
+	ADD AL, 30
+	RET
+
+END
+
+2.
+JMP start
+
+DB 3
+DB 7
+DB 6
+DB 5
+DB FF
+
+start:
+MOV DL, 02
+CALL 40
+
+ORG 30
+	ADD AL, 30
+	RET
+ORG 40
+	MOV CL, C0
+	Rep: 
+		MOV AL, [DL]
+		CMP AL, FF
+		JZ koniec
+		CALL 30
+		MOV [CL], AL
+		INC DL
+		INC CL
+		JMP Rep
+koniec:
+RET
+
+END
+3.
+
+JMP start
+
+DB "Hello"
+DB 0
+
+start:
+MOV AL, 02
+CALL 40
+
+ORG 40
+	MOV CL, C0
+	Rep: 
+		MOV DL, [AL]
+		CMP DL, 0
+		JZ koniec
+		MOV [CL], DL
+		INC AL
+		INC CL
+		JMP Rep
+koniec:
+RET
+
+END
+
+4.
+
+JMP start
+
+DB "Hello"
+DB 0
+
+start:
+MOV AL, 02
+CALL 40
+
+ORG 40
+	MOV CL, C0
+	PUSH AL
+	POP BL
+	Rep: 
+		MOV DL, [AL]
+		CMP DL, 0
+		JZ REP2
+		PUSH DL
+		INC AL
+		JMP Rep
+	REP2: 
+		MOV DL, [BL]
+		CMP DL, 0		
+		JZ koniec
+		POP DL
+		MOV [CL], DL
+		INC BL
+		INC CL
+		JMP REP2
+koniec:
+RET
+
+END

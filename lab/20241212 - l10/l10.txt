@@ -1,0 +1,73 @@
+1.
+Napisać program, który posiada procedurę do dzielenia. Dzielna przekazywana jest w rejestrze AL, a dzielnik w rejestrze BL. Wynik dzielenia zapisywany będzie do rejestru AL. Jeżeli jako dzielnik zostanie przekazane 0, to program uruchamia przerwanie 0D. Procedura obsługi tego przerwania wyświetli czerwone światło na sygnalizacji drogowej i ustawi flagę „O”(overflow). Rejestr flag nie może być modyfikowany bezpośrednio, dlatego trzeba tego dokonać za pośrednictwem stosu (instrukcja POPF).
+
+Sprawdzić czy nie dzieli przez 0, jeżeli tak zapalić czerwone światło, zapalenie flagi overflow, sprawdzić wartość overflow, tą wartość pushf i popf 
+podzielić al. przez bl
+
+MOV AL, 8
+MOV BL, 0
+CMP BL, 0
+JZ Call
+CALL 30
+
+DB 37
+
+ORG 30
+	DIV AL, BL
+	JMP Endl
+
+Call:
+	INT 0D
+
+
+MOV AL, 90
+OUT 01
+ADD AL, 90
+PUSHF
+
+Endl:
+	END
+
+
+2.
+Napisać program zawierający procedurę obsługi przerwania o numerze 03, realizującą odczyt cyfry z klawiatury. W rejestrze CL zostanie zapisana wartość cyfry (należy przekształcić znak ASCII). Jeżeli wprowadzony znak z klawiatury nie będzie cyfrą, to w rejestrze CL powinna znaleźć się liczba -1. Wyjątkiem jest litera „Q” (mała lub wielka), dla której rejestr CL przyjmuje wartość -2. Program działa w pętli, wywołując przerwanie i sygnalizując jego wynik za pomocą świateł drogowych, według poniższego schematu:
+— wykonuje x mignięć zielonym światłem (x - wprowadzona cyfra),
+— dla zwróconej wartości -1 zapala się czerwone światło.
+Pętla (a także program) kończy się po napotkaniu liczby -2 w rejestrze CL po wykonaniu przerwania.
+
+
+odjąć ascii zero żeby była cyfra, 
+JMP Start
+DB 00
+DB 03
+
+Start:
+INT 03
+CMP cl, -2
+JZ JMP ENdl
+JNZ JMP START
+cmp cl <0,9>
+JNZ MOV CL, -1 
+
+CMP CL -1
+JZ czerwone światło
+
+JNZ zielone światło które zapali się x razy
+
+cmp cl,0
+JZ JMP endl
+dec cl
+
+3.
+Napisać program z procedurą obsługi przerwania 04. Przerwanie to odczytuje znak z klawiatury i umieszcza go w buforze cyklicznym w pamięci.Wielkość takiego bufora należy ustalić na 5 bajtów. Po naciśnięciu przycisku „Enter” zawartość bufora wyświetla się na wyświetlaczu VDU. Program wykonuje przerwanie w pętli nieskończonej. Bufor nigdy nie przepełnia się, bo poprzednio dodane dane zostają nadpisane. Jeżeli wskaźnik zapisu zrówna się ze wskaźnikiem odczytu, to wskaźnik odczytu zostaje przesunięty. W takiej sytuacji nieodczytane znaki zostają utracone. W buforze można zapisać do 5 znaków, ale standardowo zaimplementowany bufor cykliczny pozwoli na odczyt tylko 4 z nich.
+
+pojebane
+
+4.
+Napisać program zawierający przerwanie 05, którego zadaniem jest wstawienie odczytanego z klawiatury znaku na kolejną wolną pozycję wyświetlacza VDU. Po naciśnięciu przycisku „Enter” dodawanie rozpoczyna się od nowej linii, a naciśnięcie przycisku „Backspace” powoduje usunięcie ostatnio wprowadzonego znaku. 
+
+
+enter
+czy cl<do jeśli tak cl do
+czy cl<e0 jest tK CL E0
+backspace kasuje znak

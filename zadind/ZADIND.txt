@@ -1,0 +1,100 @@
+Program odwracający kolejność wyrazów we wprowadzonym tekście. Tekst wprowadzamy z klawiatury. Jeżeli wyrazy zostały odwrócone, to zapali się zielone światło na sygnalizatorze. Jeżeli nie można odwrócić tekstu, bo nie ma separatorów, to zapali się czerwone światło.
+
+1. Ustalenie bufora wielkości wyświetlacza.
+2. Wczytanie  tekstu z klawiatury oraz kontrolowanie wprowadzanych znaków oraz ich ilości.
+3. Zapisywanie znaków do bufora.
+4. Zapisywanie pojedynczych wyrazów na stos.
+5. Zapisywanie wyrazów ze stosu na wyświetlacz VDU.
+6. Wyświetlenie na sygnalizatorze koloru zielonego (gdy program zadziałał prawidłowo) lub czerwonego (gdy  brak separatorów lub przekroczenie buforu).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MOV AL, 0      ; Licznik separatorów
+MOV BL, 70     ; Adres, w którym zaczyna się przechowywanie tekstu
+MOV CL, 0      ; Indeks wczytanych znaków
+
+LOAD_TEXT_LOOP:
+    CALL 10     ; Wywołaj procedurę do wczytania tekstu z klawiatury
+    CMP AL, 0   ; Sprawdź, czy to koniec tekstu (NULL)
+    JZ END_LOAD
+    MOV [BL], AL ; Zapisz wczytany znak w pamięci
+    INC BL      ; Zwiększ wskaźnik na kolejny znak
+    JMP LOAD_TEXT_LOOP
+
+END_LOAD:
+LOOP_ANALYZE:
+    MOV AL, [CL]     ; Pobierz znak z pamięci
+    CMP AL, 20      ; Sprawdź, czy to spacja
+    JZ ADD_WORD
+    CMP AL, 2C      ; Sprawdź, czy to przecinek
+    JZ ADD_WORD
+    CMP AL, 2E      ; Sprawdź, czy to kropka
+    JZ ADD_WORD
+    CMP AL, 0        ; Sprawdź, czy koniec tekstu
+    JZ END_ANALYZE
+    INC CL           ; Przesuń wskaźnik na kolejny znak w tekście
+    JMP LOOP_ANALYZE
+
+ADD_WORD:
+    PUSH CL          ; Dodaj bieżący znak na stos (w tym przypadku rejestr CL)
+    INC AL           ; Zwiększ licznik wyrazów
+    JMP LOOP_ANALYZE ; Kontynuuj analizę
+
+END_ANALYZE:
+    CMP AL, 0        ; Sprawdź, czy liczba wyrazów > 0
+    JZ ERROR         ; Jeśli brak wyrazów, wyświetl błąd
+
+REVERSE:
+    POP CL           ; Pobierz wyraz ze stosu (do rejestru CL)
+    MOV DL, [CL]          ; Wyświetl odwrócony wyraz (OUT do wyjścia na ekran)
+    DEC AL           ; Zmniejsz licznik
+    CMP AL, 0        ; Sprawdź, czy są jeszcze wyrazy
+    JNZ REVERSE      ; Jeśli tak, kontynuuj odwracanie
+
+SUCCESS:
+    MOV DL,0 
+	OUT 01   ; Włącz zielone światło
+    JMP END_PROGRAM  ; Zakończ program
+
+ERROR:
+    MOV DL,FC	; Copy 11111100 into the AL register.
+	OUT 01     ; Włącz czerwone światło; Wyświetl błąd
+    JMP END_PROGRAM  ; Zakończ program
+
+END_PROGRAM:
+    END

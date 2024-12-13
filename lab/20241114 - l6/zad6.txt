@@ -1,0 +1,51 @@
+1.
+MOV AL,B
+
+while:
+	JS endl
+	SUB AL,2
+	JMP while
+
+endl:
+	END
+
+2.
+MOV AL,0
+
+while:
+	CMP Al, 3F
+	JNS endl
+	ADD AL,3
+	JMP while
+
+endl:
+	ADD Al,3
+	END
+
+3.
+MOV [B0],AL
+
+while:
+        MOV AL,[B0]
+	CMP AL,47
+	JNS endl
+	INC AL
+	MOV [B0],AL
+	JMP while
+
+endl:
+	END
+
+4.
+MOV AL,1
+MOV BL,1
+
+while:
+	PUSH BL
+        ADD BL,AL
+	POP AL
+	JO endl
+	JMP while
+
+endl:
+	END

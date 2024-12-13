@@ -1,0 +1,207 @@
+1. 
+Napisać program, który w pętli nieskończonej odczytuje znaki z klawiatury i umieszcza je na kolejnych pozycjach wyświetlacza VDU. W przypadku,
+gdy zostaną zapełnione wszystkie pozycje, należy rozpocząć zapisywanie od
+początku, nadpisując umieszczone wcześniej znaki.
+
+Start:
+	MOV DL, D0
+
+Rep:		
+	IN 00 
+	CMP DL, FF
+	JZ Start
+	MOV [DL], AL
+	INC DL	
+	CMP AL,0D 		
+	JNZ Rep 		
+END
+
+
+2. 
+Napisać program, który cały wpisywany tekst zapisuje w pamięci RAM.
+Po naciśnięciu klawisza Enter, program wyświetli zapisany tekst na wyświetlaczu VDU. Należy zabezpieczyć program przed zapisem danych w niedozwolonych miejscach.
+
+tekst do RAMu
+bufor wielkości wyświetlacza
+od 80
+patrzymy czy nie wychodzi za bufor jak tak to zawinąć na początek bufora a poprzednią daną na wyświetlacz
+
+Main:
+	MOV DL,C0
+	MOV BL,70
+
+Wrap:
+	MOV CL,70
+Rep:
+	IN 00
+	MOV [CL],AL
+	CMP AL,0D
+	JZ Cout
+	INC CL
+	CMP CL,B0
+	JZ Wrap
+	JMP Rep
+
+Cout:
+	MOV CL, 70
+	Cout2:
+	MOV AL,[CL]
+	MOV [DL],AL
+	INC CL
+	CMP CL,B0
+	JZ Endl
+	INC DL
+	JMP Cout2
+
+Endl:
+	END
+
+3.
+Napisać program, który cały wpisywany tekst zapisuje w pamięci RAM.
+Po naciśnięciu klawisza Enter, program wyświetli zapisany tekst na wyświetlaczu VDU w kolejności odwrotnej. Należy zabezpieczyć program przed zapisem danych w niedozwolonych miejscach
+
+kopiowanie z bufora na wyświetlacz ale koniec bufora na początek wyświetlacza
+zapisać adres końca bufora
+
+Main:
+	MOV DL,C0
+	MOV BL,70
+
+
+	MOV CL,BF
+Rep:
+	IN 00
+	PUSH AL
+	CMP AL,0D
+	JZ Cout
+	DEC CL
+	CMP CL,7F
+	JZ Cout
+	JMP Rep
+
+Cout:
+	POP AL
+	MOV [DL],AL
+	CMP CL,FF
+	JZ Endl
+	INC CL
+	INC DL
+	JMP Cout
+
+Endl:
+	END
+
+
+4.
+Napisać program z wykorzystaniem trzech procedur. Pierwsza powinna
+czytać tekst z klawiatury i zapisać go w pamięci RAM. Druga powinna przekształcić każdą wielką literę w przechowywanym tekście na małą literę. Trzecia ma wyświetlać tekst na ekran VDU.
+
+zadanie 2 na 3 procedury org
+
+Main:
+	MOV DL,C0
+	MOV BL,70
+	CALL 10
+
+
+ORG 10
+Wrap:
+	MOV CL,70
+Rep:
+	IN 00
+	MOV [CL],AL
+	CMP AL,0D
+	JZ C3
+	INC CL
+	CMP CL,B0
+	JZ Wrap
+	JMP Rep
+
+C3: 
+MOV CL,70
+CALL 30
+
+ORG 30
+	
+	MOV AL,[CL]
+	CMP AL,0D
+	JZ C5
+	SUB AL, 20
+	MOV [CL], AL
+	INC CL
+	CALL 30
+
+C5:
+MOV CL, 70
+CALL 50
+
+
+ORG 50
+	MOV AL,[CL]
+	MOV [DL],AL
+	INC CL
+	CMP AL,0D
+	JZ Endl
+	INC DL
+	CALL 50
+
+
+Endl:
+	END
+
+5.
+Napisać program, który odczytuje cyfry wpisane z klawiatury i wyświetla
+ich sumę na ekranie VDU. Wprowadzanie każdej cyfry kończy naciśnięcie
+klawisza Enter.
+odjąć ascii dodać do sumy
+
+Rep:
+	IN 00
+	CMP AL,0D
+	JZ Number
+	SUB AL,30
+	ADD BL, AL
+	JMP Rep
+
+Number:
+	CMP BL, A
+	JS One
+	CMP BL, 64
+	JS Two
+	JMP Three
+	
+One:
+	ADD BL, 30
+	MOV [D0],BL
+	JMP Endl
+
+Two:	
+	MOV [CL], BL
+	MOV AL, [CL]
+	MOD AL, A
+	ADD AL, 30
+	MOV [D1], AL
+	DIV BL, A
+	MOD BL, A
+	ADD BL, 30
+	MOV [D0], BL
+	JMP Endl
+
+
+Three:
+	MOV [CL], BL
+	MOV AL, [CL]
+	MOD AL, A
+	ADD AL, 30
+	MOV [D2], AL
+	DIV BL, A
+	MOD BL, A
+	ADD BL, 30
+	MOV [D1], BL
+	MOV AL, 31
+	MOV [D0], AL
+	JMP Endl
+
+Endl:
+	END
+

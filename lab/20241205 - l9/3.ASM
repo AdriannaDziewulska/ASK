@@ -1,0 +1,27 @@
+Main:
+	MOV DL,C0
+	MOV BL,70
+
+
+	MOV CL,BF
+Rep:
+	IN 00
+	PUSH AL
+	CMP AL,0D
+	JZ Cout
+	DEC CL
+	CMP CL,7F
+	JZ Cout
+	JMP Rep
+
+Cout:
+	POP AL
+	MOV [DL],AL
+	CMP CL,FF
+	JZ Endl
+	INC CL
+	INC DL
+	JMP Cout
+
+Endl:
+	END
