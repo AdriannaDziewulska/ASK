@@ -36,38 +36,134 @@ Napisać program zawierający procedurę obsługi przerwania o numerze 03, reali
 Pętla (a także program) kończy się po napotkaniu liczby -2 w rejestrze CL po wykonaniu przerwania.
 
 
-odjąć ascii zero żeby była cyfra, 
 JMP Start
-DB 00
-DB 03
+DB 04
+DB 21
 
 Start:
-INT 03
-CMP cl, -2
-JZ JMP ENdl
-JNZ JMP START
-cmp cl <0,9>
-JNZ MOV CL, -1 
+	MOV DL, A0
+	IN 00
+	SUB AL, 30
+	MOV [DL], AL
+	MOV CL, [DL]
+	CMP CL, 21
+	JZ MinusTwo
+	CMP CL, 41
+	JZ MinusTwo
+	CMP CL, A
+	JNS MinusOne
+	For:
+		MOV AL, 24
+		OUT 01
+		DEC CL
+		MOV AL, 0
+		OUT 01
+		CMP CL, 0
+		JZ Start
+		INT 03
 
-CMP CL -1
-JZ czerwone światło
+MinusOne:
+	MOV BL, 0
+	SUB BL, 1
+	MOV CL, [BL]
+	MOV AL, 90
+	OUT 01 
+	INT 02
 
-JNZ zielone światło które zapali się x razy
+MinusTwo:
+	MOV CL, 0
+	SUB CL, 2
+	MOV AL, 90
+	OUT 01
+	END
 
-cmp cl,0
-JZ JMP endl
-dec cl
 
 3.
 Napisać program z procedurą obsługi przerwania 04. Przerwanie to odczytuje znak z klawiatury i umieszcza go w buforze cyklicznym w pamięci.Wielkość takiego bufora należy ustalić na 5 bajtów. Po naciśnięciu przycisku „Enter” zawartość bufora wyświetla się na wyświetlaczu VDU. Program wykonuje przerwanie w pętli nieskończonej. Bufor nigdy nie przepełnia się, bo poprzednio dodane dane zostają nadpisane. Jeżeli wskaźnik zapisu zrówna się ze wskaźnikiem odczytu, to wskaźnik odczytu zostaje przesunięty. W takiej sytuacji nieodczytane znaki zostają utracone. W buforze można zapisać do 5 znaków, ale standardowo zaimplementowany bufor cykliczny pozwoli na odczyt tylko 4 z nich.
 
-pojebane
+JMP Main
+JMP Wrap
+DB 0E
+
+Main:
+	MOV DL, C0
+	MOV BL, 70
+
+Wrap:
+	MOV CL, 70
+
+Rep:
+	IN 00
+	MOV [CL], AL
+	CMP AL, 0D
+	JZ Cout
+	INC CL
+	CMP CL, 96
+	JZ Wrap
+	INT 04
+
+Cout:
+	MOV CL, 70
+	Cout2:
+	MOV AL, [CL]
+	MOV [DL], AL
+	INC CL
+	CMP CL, 96
+	JZ Main
+	INC DL
+	JMP Cout2
+
+Endl:
+	END
+
 
 4.
 Napisać program zawierający przerwanie 05, którego zadaniem jest wstawienie odczytanego z klawiatury znaku na kolejną wolną pozycję wyświetlacza VDU. Po naciśnięciu przycisku „Enter” dodawanie rozpoczyna się od nowej linii, a naciśnięcie przycisku „Backspace” powoduje usunięcie ostatnio wprowadzonego znaku. 
 
 
-enter
-czy cl<do jeśli tak cl do
-czy cl<e0 jest tK CL E0
-backspace kasuje znak
+MOV CL, C0
+JMP Start
+DB 6
+
+Start:
+	IN 00
+	CMP AL, 0D
+	JZ Enter
+	CMP AL, 08
+	JZ Backspace
+	MOV [CL], AL
+	INC CL
+	CMP CL, FF
+	JZ Endl
+	INT 05
+
+Backspace:
+	DEC CL
+	MOV BL, [CL]
+	CMP BL, 21
+	JS Backspace
+	MOV [CL], DL
+	INT 05
+
+
+Enter:
+	CMP CL, D0
+	JS Add1
+	CMP CL, E0
+	JS Add2
+	CMP CL, F0
+	JS Add3
+	INT 05
+
+Add1:
+	MOV CL, D0
+	INT 05
+Add2:
+	MOV CL, E0
+	INT 05
+Add3:
+	MOV CL, F0
+	INT 05
+
+Endl:
+	END
