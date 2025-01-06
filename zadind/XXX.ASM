@@ -1,4 +1,5 @@
-MOV BL, 70
+OUT 01
+MOV BL, 80
 Start:
 	IN 00
 	MOV [BL], AL
@@ -28,6 +29,8 @@ Cout:
 		PUSH AL
 		INC DL
 		DEC BL
+		CMP BL, 7E
+		JZ CoutPopE
 		CMP AL, 20
 		JZ CoutPop
 		CMP AL, 00
