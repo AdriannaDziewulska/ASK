@@ -1,23 +1,30 @@
-MOV AL, 8
-MOV BL, 0
-CMP BL, 0
-JZ Call
-CALL 30
 
-DB 37
+MOV AL, 8        
+MOV BL, 0  
+      
+CMP BL, 0        
+JZ Call          
+JNZ DIVV
 
-ORG 30
-	DIV AL, BL
-	JMP Endl
+DB 0E
+	PUSH AL      
+	PUSH BL      
+	MOV AL, 90   
+	OUT 01       
+	POP BL       
+	MOV BL, 8     
+	PUSH BL      
+	POPF         
+	POP AL       
+	IRET         
 
 Call:
-	INT 0D
+	INT 0D       
+	JMP Endl
 
-
-MOV AL, 90
-OUT 01
-ADD AL, 90
-PUSHF
+DIVV:
+	DIV AL, BL           
+	JMP Endl         
 
 Endl:
 	END

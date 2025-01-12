@@ -1,32 +1,39 @@
-JMP Main
-JMP Wrap
-DB 0E
+JMP Start
+DB 00
+DB 00
+DB 05
 
-Main:
-	MOV DL, C0
-	MOV BL, 70
-
-Wrap:
-	MOV CL, 70
-
-Rep:
 	IN 00
 	MOV [CL], AL
 	CMP AL, 0D
-	JZ Cout
+	JZ Enter
 	INC CL
-	CMP CL, 96
+	CMP CL, 98
 	JZ Wrap
-	INT 04
+	IRET
 
-Cout:
+Start:
+	MOV DL, C0
 	MOV CL, 70
+	Start2:
+	INT 04
+	JMP Start2
+
+Wrap:
+	MOV CL, 70
+	JMP Start2	
+
+Enter:
+	MOV CL, 70
+	MOV DL, C0
 	Cout2:
 	MOV AL, [CL]
 	MOV [DL], AL
+	MOV AL, 0
+	MOV [CL], AL
 	INC CL
-	CMP CL, 96
-	JZ Main
+	CMP CL, 98
+	JZ Start
 	INC DL
 	JMP Cout2
 

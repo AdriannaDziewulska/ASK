@@ -2,7 +2,9 @@ MOV CL, C0
 JMP Start
 DB 6
 
-
+MOV [CL], AL
+INC CL
+IRET
 
 Start:
 	IN 00
@@ -10,11 +12,11 @@ Start:
 	JZ Enter
 	CMP AL, 08
 	JZ Backspace
-	MOV [CL], AL
-	INC CL
+	INT 05
 	CMP CL, FF
 	JZ Endl
-	INT 05
+	JMP Start
+	
 
 Backspace:
 	DEC CL
@@ -22,7 +24,7 @@ Backspace:
 	CMP BL, 21
 	JS Backspace
 	MOV [CL], DL
-	INT 05
+	JMP Start
 
 
 Enter:
@@ -32,17 +34,19 @@ Enter:
 	JS Add2
 	CMP CL, F0
 	JS Add3
-	INT 05
 
 Add1:
 	MOV CL, D0
-	INT 05
+	JMP Start
+
 Add2:
 	MOV CL, E0
-	INT 05
+	JMP Start
+
 Add3:
 	MOV CL, F0
-	INT 05
+	JMP Start
+
 
 Endl:
 	END
