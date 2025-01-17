@@ -1,5 +1,5 @@
 MOV AL, 3
-MOV BL, 3
+MOV BL, f
 MOV CL, 0
 
 Start:

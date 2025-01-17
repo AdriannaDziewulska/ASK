@@ -1,0 +1,182 @@
+JMP Start 
+DB 50
+
+Start:
+	MOV BL, 52
+	STI
+Rep:
+	IN 03     
+	CMP AL, 0    		
+	JZ HeatOn     
+	JMP HeatOff   
+
+HeatOn:
+	MOV AL, 80    
+	OUT 03        
+	JMP Rep     
+
+HeatOff:
+	MOV AL, 0     
+	OUT 03      
+	JMP Rep 
+
+ORG 50
+	JMP PastData
+	DB CF
+	DB FF
+	DB CB
+	DB FD
+	DB DD
+	DB 4F
+	DB 9F
+	DB B7	
+	DB B
+	DB FB
+	PastData:
+		CMP BL, 5C
+		JZ Reset
+		MOV AL,[BL] 
+		OUT 02
+		INC BL
+		JMP Stop
+
+	Reset:
+		MOV BL,52
+		JMP PastData
+
+	Stop:
+		IRET
+
+END
+
+
+
+
+
+JMP Start
+DB 00
+DB 10
+
+ORG 10
+	CLI
+	PUSH AL
+	PUSHF
+	IN 07
+
+	POPF
+	POP AL
+	STI
+	IRET
+	
+Start:
+	MOV AL,FF
+	OUT 04
+	STI
+	INT 03
+	OUT 07
+	Rep:
+	CMP AL, 77
+	JZ Up
+	CMP AL, 61
+	JZ Left
+	CMP AL, 73
+	JZ Down
+	CMP AL, 64
+	JZ Right
+	CMP AL, 20
+	JZ Endl
+	JMP Rep
+
+Up:
+	MOV AL, 80
+	OUT 04
+Left:
+	MOV AL, 20
+	OUT 04
+Down:
+	MOV AL, 40
+	OUT 04
+Right:
+	MOV AL, 10
+	OUT 04
+Endl:
+	END
+
+
+
+
+
+
+
+
+
+
+
+JMP Start         ; Skok za tablicę wektorów przerwań
+DB 00             ; Wektor przerwania zegara
+DB 10             ; Wektor przerwania klawiatury (zmieniony na 07)
+DB 00             ; Wektor przerwania klawiatury numerycznej
+
+ORG 20            ; Początek procedury obsługi przerwania klawiatury
+CLI                ; Wyłącz przerwania (zabezpieczenie przed wielowątkowością)
+PUSH AL            ; Zapisz rejestr AL na stosie
+PUSHF              ; Zapisz flagi na stosie
+IN 01              ; Odczytaj kod naciśniętego klawisza z porto wyświetlacza)
+NOP                ; Możesz dodać więcej instrukcji debugujących tutaj
+
+; Obsługa naciśniętych klawiszy
+CMP AL, 77         ; Czy naciśnięto 'w' (w górę)?
+JZ Up
+CMP AL, 61         ; Czy naciśnięto 'a' (w lewo)?
+JZ Left
+CMP AL, 73         ; Czy naciśnięto 's' (w dół)?
+JZ Down
+CMP AL, 64         ; Czy naciśnięto 'd' (w prawo)?
+JZ Right
+CMP AL, 20         ; Czy naciśnięto 'spacja' (Enter)?
+JZ Endl
+
+POPF               ; Przywróć flagi
+POP AL             ; Przywróć rejestr AL
+STI                ; Włącz przerwania (zezwól na następne przerwania)
+RET                ; Zakończenie procedury obsługi przerwania
+
+Up:
+MOV AL, 8F         ; Ruch w górę
+OUT 04
+JMP Done
+
+Left:
+MOV AL, 2F         ; Ruch w lewo
+OUT 04
+JMP Done
+
+Down:
+MOV AL, 4F         ; Ruch w dół
+OUT 04
+JMP Done
+
+Right:
+MOV AL, 1F         ; Ruch w prawo
+OUT 04
+JMP Done
+
+Endl:
+MOV AL, 0          ; Przejście do nowej linii (resetowanie)
+OUT 04
+
+Done:
+IRET               ; Powrót z procedury obsługi przerwania
+
+Start:
+
+STI                ; Włącz flagę przerwań
+OUT 07             ; Wysyłanie danych na port 07 (inicjalizacja klawiatury)
+CALL 20            ; Wywołanie procedury obsługi przerwania klawiatury
+
+; Główna pętla programu
+Idle:
+NOP                ; Można dodać kod do wykonywania w głównej pętli
+JMP Idle           ; Zawieszenie programu, czekanie na przerwania
+
+END
