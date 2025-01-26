@@ -1,33 +1,24 @@
-JMP start
+MOV BL, C0
+MOV AL, 3
+CALL 30
 
-DB "Hello"
-DB 0
+INC BL
 
-start:
-MOV AL, 02
-CALL 40
+MOV AL, 7
+CALL 30
 
-ORG 40
-	MOV CL, C0
+ORG 30
+	ADD AL, 30
 	PUSH AL
-	POP BL
-	Rep: 
-		MOV DL, [AL]
-		CMP DL, 0
-		JZ REP2
-		PUSH DL
-		INC AL
-		JMP Rep
-	REP2: 
-		MOV DL, [BL]
-		CMP DL, 0		
-		JZ koniec
-		POP DL
-		MOV [CL], DL
-		INC BL
-		INC CL
-		JMP REP2
-koniec:
-RET
+	POP DL
+	DIV AL, 10
+	ADD AL, 30
+	MOV [BL], AL
+	INC BL
+	MOD DL, 10
+	ADD DL, 30
+	MOV [BL], DL
+	INC BL
+	RET
 
 END
